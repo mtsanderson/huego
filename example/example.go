@@ -8,5 +8,7 @@ import (
 func main() {
 	b := huego.NewHueBridge("192.168.1.19")
 
-	fmt.Println(b)
+	l := b.Getlight(10)
+
+	fmt.Println(l.State.On)
 }
