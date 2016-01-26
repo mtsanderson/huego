@@ -56,8 +56,8 @@ type LightPointsymbol struct {
 }
 
 type Bridge struct {
-	ip         string
-	auth_token string
+	ip       string
+	username string
 }
 
 func NewHueBridge(ip string) *Bridge {
@@ -86,7 +86,7 @@ func NewHueBridge(ip string) *Bridge {
 		err = decoder.Decode(&jsondata)
 		perror(err)
 
-		b.auth_token = jsondata["username"].(string)
+		b.username = jsondata["username"].(string)
 	}
 	fh.Close()
 
@@ -155,7 +155,7 @@ func (b *Bridge) register() {
 
 func (b *Bridge) Getlight(id int) Light {
 	// This method will return a Light Object
-	url := fmt.Sprintf("http://%s/api/%s/lights/%d", b.ip, b.auth_token, id)
+	url := fmt.Sprintf("http://%s/api/%s/lights/%d", b.ip, b.username, id)
 	resp := b.request("GET", url, nil)
 	defer resp.Body.Close()
 
@@ -171,7 +171,7 @@ func (b *Bridge) Getlight(id int) Light {
 }
 
 func (b *Bridge) Getlights() []Light {
-	url := fmt.Sprintf("http://%s/api/%s/lights", b.ip, b.auth_token)
+	url := fmt.Sprintf("http://%s/api/%s/lights", b.ip, b.username)
 	resp := b.request("GET", url, nil)
 	defer resp.Body.Close()
 
@@ -213,7 +213,7 @@ func (b *Bridge) Getlights() []Light {
 
 func (l *Light) On(state bool) {
 	l.State.On = state
-	url := fmt.Sprintf("http://%s/api/%s/lights/%d/state", l.Bridge.ip, l.Bridge.auth_token, l.Id)
+	url := fmt.Sprintf("http://%s/api/%s/lights/%d/state", l.Bridge.ip, l.Bridge.username, l.Id)
 
 	data := map[string]bool{"on": state}
 	jdata, err := json.Marshal(data)
