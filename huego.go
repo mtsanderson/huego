@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/user"
+	"strconv"
 )
 
 func perror(err error) {
@@ -15,6 +16,18 @@ func perror(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+type Light struct {
+	Id               int              `json:"id,omitempty"`
+	State            LightState       `json:"state,omitempty"`
+	Type             string           `json:"type,omitempty"`
+	Name             string           `json:"name,omitempty"`
+	Modelid          string           `json:"modelid,omitempty"`
+	Manufacturername string           `json:"manufacturername,omitempty"`
+	Uniqueid         string           `json:"uniqueid,omitempty"`
+	Swversion        string           `json:"swversion,omityempty"`
+	Pointsymbol      LightPointsymbol `json:"pointsymbol,omitempty"`
 }
 
 type LightState struct {
@@ -28,18 +41,6 @@ type LightState struct {
 	Effect    string     `json:"effect,omitempty"`
 	Colormode string     `json:"colormode,omitempty"`
 	Reachable bool       `json:"reachable,omitempty"`
-}
-
-type Light struct {
-	Id               int              `json:"id"`
-	State            LightState       `json:"state,omitempty"`
-	Type             string           `json:"type,omitempty"`
-	Name             string           `json:"name,omitempty"`
-	Modelid          string           `json:"modelid,omitempty"`
-	Manufacturername string           `json:"manufacturername,omitempty"`
-	Uniqueid         string           `json:"uniqueid,omitempty"`
-	Swversion        string           `json:"swversion,omityempty"`
-	Pointsymbol      LightPointsymbol `json:"pointsymbol,omitempty"`
 }
 
 type LightPointsymbol struct {
@@ -151,4 +152,44 @@ func (b *Bridge) Getlight(id int) Light {
 	light.Id = id
 
 	return light
+}
+
+func (b *Bridge) Getlights() []Light {
+	url := fmt.Sprintf("http://%s/api/%s/lights", b.ip, b.auth_token)
+	resp := b.request("GET", url, nil)
+	defer resp.Body.Close()
+
+	decoder := json.NewDecoder(resp.Body)
+	var data map[string]interface{}
+	err := decoder.Decode(&data)
+	if err != nil {
+		panic(err)
+	}
+
+	var lights []Light
+
+	for k, v := range data {
+		// TODO: make this more efficient!!
+		var l Light
+		jsondata, err := json.Marshal(v)
+		if err != nil {
+			panic(err)
+		}
+
+		err = json.Unmarshal(jsondata, &l)
+		if err != nil {
+			panic(err)
+		}
+
+		id, err := strconv.Atoi(k)
+		if err != nil {
+			panic(err)
+		}
+
+		l.Id = id
+
+		lights = append(lights, l)
+	}
+
+	return lights
 }
