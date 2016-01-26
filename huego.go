@@ -19,6 +19,7 @@ func perror(err error) {
 }
 
 type Light struct {
+	Bridge           Bridge
 	Id               int              `json:"id,omitempty"`
 	State            LightState       `json:"state,omitempty"`
 	Type             string           `json:"type,omitempty"`
@@ -104,6 +105,20 @@ func (b *Bridge) request(method string, url string, data []byte) *http.Response 
 		buf := bytes.NewReader(data)
 		resp, err = http.Post(url, "application/json", buf)
 		perror(err)
+	case "PUT":
+		client := &http.Client{}
+		buf := bytes.NewReader(data)
+		req, err := http.NewRequest("PUT", url, buf)
+		if err != nil {
+			panic(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		resp, err = client.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
 	}
 
 	return resp
@@ -150,6 +165,7 @@ func (b *Bridge) Getlight(id int) Light {
 	perror(err)
 
 	light.Id = id
+	light.Bridge = *b
 
 	return light
 }
@@ -170,13 +186,13 @@ func (b *Bridge) Getlights() []Light {
 
 	for k, v := range data {
 		// TODO: make this more efficient!!
-		var l Light
+		var light Light
 		jsondata, err := json.Marshal(v)
 		if err != nil {
 			panic(err)
 		}
 
-		err = json.Unmarshal(jsondata, &l)
+		err = json.Unmarshal(jsondata, &light)
 		if err != nil {
 			panic(err)
 		}
@@ -186,10 +202,23 @@ func (b *Bridge) Getlights() []Light {
 			panic(err)
 		}
 
-		l.Id = id
+		light.Id = id
+		light.Bridge = *b
 
-		lights = append(lights, l)
+		lights = append(lights, light)
 	}
 
 	return lights
+}
+
+func (l *Light) On(state bool) {
+	l.State.On = state
+	url := fmt.Sprintf("http://%s/api/%s/lights/%d/state", l.Bridge.ip, l.Bridge.auth_token, l.Id)
+
+	data := map[string]bool{"on": state}
+	jdata, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+	l.Bridge.request("PUT", url, jdata)
 }
