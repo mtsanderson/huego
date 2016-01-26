@@ -19,38 +19,38 @@ func perror(err error) {
 
 type LightState struct {
 	On        bool       `json:"on,omitempty"`
-	Bri       uint8      `json:"bri"`
-	Hue       uint16     `json:"hue"`
-	Sat       uint8      `json:"sat"`
-	Xy        [2]float32 `json:"xy"`
-	ct        uint16     `json:"ct"`
-	Alert     string     `json:"alert"`
-	Effect    string     `json:"effect"`
-	Colormode string     `json:"colormode"`
-	Reachable bool       `json:"reachable"`
+	Bri       uint8      `json:"bri,omitempty"`
+	Hue       uint16     `json:"hue,omitempty"`
+	Sat       uint8      `json:"sat,omitempty"`
+	Xy        [2]float32 `json:"xy,omitempty"`
+	ct        uint16     `json:"ct,omitempty"`
+	Alert     string     `json:"alert,omitempty"`
+	Effect    string     `json:"effect,omitempty"`
+	Colormode string     `json:"colormode,omitempty"`
+	Reachable bool       `json:"reachable,omitempty"`
 }
 
 type Light struct {
 	Id               int              `json:"id"`
-	State            LightState       `json:"state"`
-	Type             string           `json:"type"`
-	Name             string           `json:"name"`
-	Modelid          string           `json:"modelid"`
-	Manufacturername string           `json:"manufacturername"`
-	Uniqueid         string           `json:"uniqueid"`
-	Swversion        string           `json:"swversion"`
-	Pointsymbol      LightPointsymbol `json:"pointsymbol"`
+	State            LightState       `json:"state,omitempty"`
+	Type             string           `json:"type,omitempty"`
+	Name             string           `json:"name,omitempty"`
+	Modelid          string           `json:"modelid,omitempty"`
+	Manufacturername string           `json:"manufacturername,omitempty"`
+	Uniqueid         string           `json:"uniqueid,omitempty"`
+	Swversion        string           `json:"swversion,omityempty"`
+	Pointsymbol      LightPointsymbol `json:"pointsymbol,omitempty"`
 }
 
 type LightPointsymbol struct {
-	Num1 string `json:"1"`
-	Num2 string `json:"2"`
-	Num3 string `json:"3"`
-	Num4 string `json:"4"`
-	Num5 string `json:"5"`
-	Num6 string `json:"6"`
-	Num7 string `json:"7"`
-	Num8 string `json:"8"`
+	Num1 string `json:"1,omitempty"`
+	Num2 string `json:"2,omitempty"`
+	Num3 string `json:"3,omitempty"`
+	Num4 string `json:"4,omitempty"`
+	Num5 string `json:"5,omitempty"`
+	Num6 string `json:"6,omitempty"`
+	Num7 string `json:"7,omitempty"`
+	Num8 string `json:"8,omitempty"`
 }
 
 type Bridge struct {
@@ -137,7 +137,7 @@ func (b *Bridge) register() {
 	}
 }
 
-func (b *Bridge) getlight(id int) Light {
+func (b *Bridge) Getlight(id int) Light {
 	// This method will return a Light Object
 	url := fmt.Sprintf("http://%s/api/%s/lights/%d", b.ip, b.auth_token, id)
 	resp := b.request("GET", url, nil)
