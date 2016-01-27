@@ -176,33 +176,20 @@ func (b *Bridge) Getlights() []Light {
 	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
-	var data map[string]interface{}
+	var data map[string]Light
 	err := decoder.Decode(&data)
 	if err != nil {
 		panic(err)
 	}
 
-	var lights []Light
+	lights := make([]Light, 0, len(data))
 
-	for k, v := range data {
-		// TODO: make this more efficient!!
-		var light Light
-		jsondata, err := json.Marshal(v)
+	for id, light := range data {
+		light.Id, err = strconv.Atoi(id)
 		if err != nil {
 			panic(err)
 		}
 
-		err = json.Unmarshal(jsondata, &light)
-		if err != nil {
-			panic(err)
-		}
-
-		id, err := strconv.Atoi(k)
-		if err != nil {
-			panic(err)
-		}
-
-		light.Id = id
 		light.Bridge = *b
 
 		lights = append(lights, light)
