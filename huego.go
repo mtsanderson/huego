@@ -220,3 +220,14 @@ func (l *Light) Bri(bri uint8) {
 	}
 	l.Bridge.request("PUT", url, jdata)
 }
+
+func (l *Light) Hue(hue uint16) {
+	l.State.Hue = hue
+	url := fmt.Sprintf("http://%s/api/%s/lights/%d/state", l.Bridge.ip, l.Bridge.username, l.Id)
+	data := map[string]uint16{"hue": hue}
+	jdata, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+	l.Bridge.request("PUT", url, jdata)
+}
