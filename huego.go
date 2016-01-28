@@ -32,7 +32,7 @@ type Light struct {
 }
 
 type LightState struct {
-	On        bool       `json:"on,omitempty"`
+	On        bool       `json:"on"`
 	Bri       uint8      `json:"bri,omitempty"`
 	Hue       uint16     `json:"hue,omitempty"`
 	Sat       uint8      `json:"sat,omitempty"`
@@ -230,4 +230,13 @@ func (l *Light) Hue(hue uint16) {
 		panic(err)
 	}
 	l.Bridge.request("PUT", url, jdata)
+}
+
+func (l *Light) SetLightState() {
+	url := fmt.Sprintf("http://%s/api/%s/lights/%d/state", l.Bridge.ip, l.Bridge.username, l.Id)
+	data, err := json.Marshal(l.State)
+	if err != nil {
+		panic(err)
+	}
+	l.Bridge.request("PUT", url, data)
 }
