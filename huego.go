@@ -48,6 +48,30 @@ type LightPointsymbol struct {
 	Num8 string `json:"8,omitempty"`
 }
 
+type LightGroup struct {
+	Id       int         `json:"id,omitempty"`
+	Name     string      `json:"name,omitempty"`
+	Lights   []string    `json:"lights,omitempty"`
+	Type     string      `json:"type,omitempty"`
+	Action   GroupAction `json:"action,omitempty"`
+	Modelid  string      `json:"modelid,omitempty"`
+	Uniqueid string      `json:"uniqueid,omitempty"`
+	Class    string      `json:"class,omitempty"`
+}
+
+type GroupAction struct {
+	On             bool       `json:"on"`
+	Bri            uint8      `json:"bri,omitempty"`
+	Hue            uint16     `json:"hue,omitempty"`
+	Sat            uint8      `json:"sat,omitempty"`
+	Xy             [2]float32 `json:"xy,omitempty"`
+	ct             uint16     `json:"ct,omitempty"`
+	Alert          string     `json:"alert,omitempty"`
+	Effect         string     `json:"effect,omitempty"`
+	Transitiontime uint16     `json:"transitiontime,omitempty"`
+	Scence         string     `json:"scene,omitempty"`
+}
+
 type Bridge struct {
 	ip       string
 	username string
