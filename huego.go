@@ -275,3 +275,29 @@ func (l *Light) SetLightState() {
 	}
 	l.Bridge.request("PUT", url, data)
 }
+
+func (b *Bridge) GetLightGroups() []LightGroup {
+	url := fmt.Sprintf("http://%s/api/%s/groups", b.ip, b.username)
+	resp := b.request("GET", url, nil)
+	defer resp.Body.Close()
+
+	decoder := json.NewDecoder(resp.Body)
+	var data map[string]LightGroup
+	err := decoder.Decode(&data)
+	if err != nil {
+		panic(err)
+	}
+
+	groups := make([]LightGroup, 0, len(data))
+
+	for id, group := range data {
+		group.Id, err = strconv.Atoi(id)
+		if err != nil {
+			panic(err)
+		}
+
+		groups = append(groups, group)
+	}
+
+	return groups
+}
