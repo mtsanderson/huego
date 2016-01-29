@@ -11,13 +11,6 @@ import (
 	"strconv"
 )
 
-func perror(err error) {
-	// Panic on error
-	if err != nil {
-		panic(err)
-	}
-}
-
 type Light struct {
 	Bridge           Bridge
 	Id               int              `json:"id,omitempty"`
@@ -67,7 +60,9 @@ func NewHueBridge(ip string) *Bridge {
 	b.ip = ip
 
 	u, err := user.Current()
-	perror(err)
+	if err != nil {
+		panic(err)
+	}
 
 	file_path := fmt.Sprintf("%s/.huego", u.HomeDir)
 
@@ -75,16 +70,22 @@ func NewHueBridge(ip string) *Bridge {
 	fh, err = os.Open(file_path)
 	if os.IsNotExist(err) {
 		fh, err = os.Create(file_path)
-		perror(err)
+		if err != nil {
+			panic(err)
+		}
 		b.register()
 	} else {
 		data, err := ioutil.ReadFile(file_path)
-		perror(err)
+		if err != nil {
+			panic(err)
+		}
 
 		decoder := json.NewDecoder(bytes.NewReader(data))
 		var jsondata map[string]interface{}
 		err = decoder.Decode(&jsondata)
-		perror(err)
+		if err != nil {
+			panic(err)
+		}
 
 		b.username = jsondata["username"].(string)
 	}
@@ -100,11 +101,15 @@ func (b *Bridge) request(method string, url string, data []byte) *http.Response 
 	switch method {
 	case "GET":
 		resp, err = http.Get(url)
-		perror(err)
+		if err != nil {
+			panic(err)
+		}
 	case "POST":
 		buf := bytes.NewReader(data)
 		resp, err = http.Post(url, "application/json", buf)
-		perror(err)
+		if err != nil {
+			panic(err)
+		}
 	case "PUT":
 		client := &http.Client{}
 		buf := bytes.NewReader(data)
@@ -129,7 +134,9 @@ func (b *Bridge) register() {
 
 	reqdata := map[string]string{"devicetype": "huego"}
 	jsondata, err := json.Marshal(reqdata)
-	perror(err)
+	if err != nil {
+		panic(err)
+	}
 
 	url := fmt.Sprintf("http://%s/api", b.ip)
 
@@ -139,7 +146,9 @@ func (b *Bridge) register() {
 	decoder := json.NewDecoder(resp.Body)
 	var data []map[string]interface{}
 	err = decoder.Decode(&data)
-	perror(err)
+	if err != nil {
+		panic(err)
+	}
 
 	for _, line := range data {
 		for key, val := range line {
@@ -162,7 +171,9 @@ func (b *Bridge) Getlight(id int) Light {
 	decoder := json.NewDecoder(resp.Body)
 	var light Light
 	err := decoder.Decode(&light)
-	perror(err)
+	if err != nil {
+		panic(err)
+	}
 
 	light.Id = id
 	light.Bridge = *b
