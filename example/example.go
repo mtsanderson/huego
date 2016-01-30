@@ -3,36 +3,33 @@ package main
 import (
 	"fmt"
 	"github.com/mtsanderson/huego"
-	"math/rand"
-	"strings"
-	"time"
+	"strconv"
 )
 
 func main() {
-	rand.Seed(time.Now().UTC().UnixNano())
 	b := huego.NewHueBridge("192.168.1.19")
 
-	l := b.Getlights()
+	/*
+		l := b.Getlight(17)
 
-	done := make(chan bool)
+		fmt.Println(l.State)
+		l.State.On = false
+		l.SetLightState()
+	*/
 
-	for _, v := range l {
-		if strings.Contains(v.Name, "Living") {
-			if v.State.On {
-				go lightparty(v)
+	groups := b.GetLightGroups()
+
+	for _, g := range groups {
+		if g.Name == "notify" {
+			for _, l := range g.Lights {
+				lid, err := strconv.Atoi(l)
+				if err != nil {
+					panic(err)
+				}
+				light := b.Getlight(lid)
+				light.On(false)
+				fmt.Println(light.State)
 			}
 		}
 	}
-	<-done
-}
-
-func lightparty(l huego.Light) {
-
-	for {
-		n := rand.Intn(64000)
-		l.Hue(uint16(n))
-		fmt.Printf("Set light %d to %d hue!\n", l.Id, n)
-		time.Sleep(time.Microsecond * 500)
-	}
-
 }
